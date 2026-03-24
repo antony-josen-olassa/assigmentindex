@@ -11,14 +11,10 @@
             text-align: center;
         }
 
-        h1 {
-            margin-top: 20px;
-        }
-
         .box {
             margin: 20px auto;
             padding: 20px;
-            width: 320px;
+            width: 350px;
             background: #1E293B;
             border-radius: 10px;
         }
@@ -43,6 +39,11 @@
 
         button:hover {
             background: #7C3AED;
+        }
+
+        .list {
+            text-align: left;
+            margin-top: 10px;
         }
     </style>
 </head>
@@ -76,91 +77,141 @@
     <button onclick="submitAssignment()">Submit</button>
 </div>
 
+<!-- View Users -->
+<div class="box">
+    <h2>View Users</h2>
+    <button onclick="getUsers()">Load Users</button>
+    <div id="usersList" class="list"></div>
+</div>
+
+<!-- View Assignments -->
+<div class="box">
+    <h2>View Assignments</h2>
+    <button onclick="getAssignments()">Load Assignments</button>
+    <div id="assignmentList" class="list"></div>
+</div>
+
+<!-- View Marks -->
+<div class="box">
+    <h2>Marks Dashboard</h2>
+    <button onclick="getSubmissions()">Load Marks</button>
+    <div id="marksList" class="list"></div>
+</div>
+
 <script>
-    const url = "https://duxdysjrjrztlsqbjdjj.supabase.co";
-    const key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1eGR5c2pyanJ6dGxzcWJqZGpqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzNjkwMDMsImV4cCI6MjA4OTk0NTAwM30.Ct43H9QXlAGqqxzhu_2M1cQEX_m1fAZ_AQYV2uS-ag4";
+const url = "https://duxdysjrjrztlsqbjdjj.supabase.co";
+const key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1eGR5c2pyanJ6dGxzcWJqZGpqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzNjkwMDMsImV4cCI6MjA4OTk0NTAwM30.Ct43H9QXlAGqqxzhu_2M1cQEX_m1fAZ_AQYV2uS-ag4";
 
-    // ✅ Add User
-    async function addUser() {
-        const name = document.getElementById("name").value;
-        const email = document.getElementById("email").value;
+// ADD USER
+async function addUser() {
+    await fetch(url + "/rest/v1/users", {
+        method: "POST",
+        headers: {
+            "apikey": key,
+            "Authorization": "Bearer " + key,
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            name: document.getElementById("name").value,
+            email: document.getElementById("email").value,
+            role: "Student"
+        })
+    });
+    alert("User Added");
+}
 
-        if (!name || !email) {
-            alert("Please fill all fields");
-            return;
+// ADD ASSIGNMENT
+async function addAssignment() {
+    await fetch(url + "/rest/v1/assignments", {
+        method: "POST",
+        headers: {
+            "apikey": key,
+            "Authorization": "Bearer " + key,
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            title: document.getElementById("title").value,
+            max_marks: document.getElementById("marks").value
+        })
+    });
+    alert("Assignment Added");
+}
+
+// SUBMIT
+async function submitAssignment() {
+    await fetch(url + "/rest/v1/submissions", {
+        method: "POST",
+        headers: {
+            "apikey": key,
+            "Authorization": "Bearer " + key,
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            user_id: document.getElementById("user_id").value,
+            assignment_id: document.getElementById("assignment_id").value,
+            marks_obtained: document.getElementById("marks_obtained").value,
+            status: "submitted"
+        })
+    });
+    alert("Submitted");
+}
+
+// VIEW USERS
+async function getUsers() {
+    const res = await fetch(url + "/rest/v1/users", {
+        headers: {
+            "apikey": key,
+            "Authorization": "Bearer " + key
         }
+    });
 
-        await fetch(url + "/rest/v1/users", {
-            method: "POST",
-            headers: {
-                "apikey": key,
-                "Authorization": "Bearer " + key,
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                name: name,
-                email: email,
-                role: "Student"
-            })
-        });
+    const data = await res.json();
+    let output = "";
 
-        alert("✅ User Added");
-    }
+    data.forEach(user => {
+        output += `<p>ID: ${user.id} | ${user.name} (${user.email})</p>`;
+    });
 
-    // ✅ Add Assignment
-    async function addAssignment() {
-        const title = document.getElementById("title").value;
-        const marks = document.getElementById("marks").value;
+    document.getElementById("usersList").innerHTML = output;
+}
 
-        if (!title || !marks) {
-            alert("Please fill all fields");
-            return;
+// VIEW ASSIGNMENTS
+async function getAssignments() {
+    const res = await fetch(url + "/rest/v1/assignments", {
+        headers: {
+            "apikey": key,
+            "Authorization": "Bearer " + key
         }
+    });
 
-        await fetch(url + "/rest/v1/assignments", {
-            method: "POST",
-            headers: {
-                "apikey": key,
-                "Authorization": "Bearer " + key,
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                title: title,
-                max_marks: marks
-            })
-        });
+    const data = await res.json();
+    let output = "";
 
-        alert("✅ Assignment Added");
-    }
+    data.forEach(a => {
+        output += `<p>ID: ${a.id} | ${a.title} (Max: ${a.max_marks})</p>`;
+    });
 
-    // ✅ Submit Assignment
-    async function submitAssignment() {
-        const user_id = document.getElementById("user_id").value;
-        const assignment_id = document.getElementById("assignment_id").value;
-        const marks = document.getElementById("marks_obtained").value;
+    document.getElementById("assignmentList").innerHTML = output;
+}
 
-        if (!user_id || !assignment_id || !marks) {
-            alert("Please fill all fields");
-            return;
+// VIEW MARKS
+async function getSubmissions() {
+    const res = await fetch(url + "/rest/v1/submissions", {
+        headers: {
+            "apikey": key,
+            "Authorization": "Bearer " + key
         }
+    });
 
-        await fetch(url + "/rest/v1/submissions", {
-            method: "POST",
-            headers: {
-                "apikey": key,
-                "Authorization": "Bearer " + key,
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                user_id: user_id,
-                assignment_id: assignment_id,
-                marks_obtained: marks,
-                status: "submitted"
-            })
-        });
+    const data = await res.json();
+    let output = "";
 
-        alert("✅ Assignment Submitted");
-    }
+    data.forEach(s => {
+        output += `<p>User: ${s.user_id} | Assignment: ${s.assignment_id} | Marks: ${s.marks_obtained}</p>`;
+    });
+
+    document.getElementById("marksList").innerHTML = output;
+}
 </script>
 
 </body>
