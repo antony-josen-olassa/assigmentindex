@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Online Assignment System</title>
+
+    <style>
+        body {
+            background: #0F172A;
+            color: white;
+            font-family: Arial;
+            text-align: center;
+        }
+
+        h1 {
+            margin-top: 20px;
+        }
+
+        .box {
+            margin: 20px auto;
+            padding: 20px;
+            width: 320px;
+            background: #1E293B;
+            border-radius: 10px;
+        }
+
+        input {
+            padding: 10px;
+            margin: 5px;
+            width: 90%;
+            border-radius: 5px;
+            border: none;
+        }
+
+        button {
+            background: #8B5CF6;
+            color: white;
+            padding: 10px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #7C3AED;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>Online Assignment System</h1>
+
+<!-- Add User -->
+<div class="box">
+    <h2>Add User</h2>
+    <input id="name" placeholder="Name"><br>
+    <input id="email" placeholder="Email"><br>
+    <button onclick="addUser()">Add User</button>
+</div>
+
+<!-- Add Assignment -->
+<div class="box">
+    <h2>Add Assignment</h2>
+    <input id="title" placeholder="Title"><br>
+    <input id="marks" placeholder="Marks"><br>
+    <button onclick="addAssignment()">Add Assignment</button>
+</div>
+
+<!-- Submit Assignment -->
+<div class="box">
+    <h2>Submit Assignment</h2>
+    <input id="user_id" placeholder="User ID"><br>
+    <input id="assignment_id" placeholder="Assignment ID"><br>
+    <input id="marks_obtained" placeholder="Marks"><br>
+    <button onclick="submitAssignment()">Submit</button>
+</div>
+
+<script>
+    const url = "https://duxdysjrjrztlsqbjdjj.supabase.co";
+    const key = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1eGR5c2pyanJ6dGxzcWJqZGpqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQzNjkwMDMsImV4cCI6MjA4OTk0NTAwM30.Ct43H9QXlAGqqxzhu_2M1cQEX_m1fAZ_AQYV2uS-ag4";
+
+    // ✅ Add User
+    async function addUser() {
+        const name = document.getElementById("name").value;
+        const email = document.getElementById("email").value;
+
+        if (!name || !email) {
+            alert("Please fill all fields");
+            return;
+        }
+
+        await fetch(url + "/rest/v1/users", {
+            method: "POST",
+            headers: {
+                "apikey": key,
+                "Authorization": "Bearer " + key,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                name: name,
+                email: email,
+                role: "Student"
+            })
+        });
+
+        alert("✅ User Added");
+    }
+
+    // ✅ Add Assignment
+    async function addAssignment() {
+        const title = document.getElementById("title").value;
+        const marks = document.getElementById("marks").value;
+
+        if (!title || !marks) {
+            alert("Please fill all fields");
+            return;
+        }
+
+        await fetch(url + "/rest/v1/assignments", {
+            method: "POST",
+            headers: {
+                "apikey": key,
+                "Authorization": "Bearer " + key,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                title: title,
+                max_marks: marks
+            })
+        });
+
+        alert("✅ Assignment Added");
+    }
+
+    // ✅ Submit Assignment
+    async function submitAssignment() {
+        const user_id = document.getElementById("user_id").value;
+        const assignment_id = document.getElementById("assignment_id").value;
+        const marks = document.getElementById("marks_obtained").value;
+
+        if (!user_id || !assignment_id || !marks) {
+            alert("Please fill all fields");
+            return;
+        }
+
+        await fetch(url + "/rest/v1/submissions", {
+            method: "POST",
+            headers: {
+                "apikey": key,
+                "Authorization": "Bearer " + key,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                user_id: user_id,
+                assignment_id: assignment_id,
+                marks_obtained: marks,
+                status: "submitted"
+            })
+        });
+
+        alert("✅ Assignment Submitted");
+    }
+</script>
+
+</body>
+</html>
